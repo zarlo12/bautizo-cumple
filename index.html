@@ -556,7 +556,7 @@
       musicaInicio: 0,              // segundo en el que empieza la canción
 
       // O usa tu propio archivo MP3 (ej. 'musica/cancion.mp3'). Si lo llenas, se usa en lugar de YouTube.
-      musicaArchivo: ''
+      musicaArchivo: 'musica.mp3'
     };
     /* ============================================================= */
 
@@ -586,13 +586,35 @@
     setInterval(actualizarCuenta, 1000);
 
     // Música
+    // Los navegadores no dejan sonar una página hasta que la persona la toca.
+    // Por eso: se intenta reproducir al abrir y, si se bloquea, empieza con el primer toque en cualquier parte.
     const botonMusica = document.getElementById('botonMusica');
     let sonando = false, audio = null, player = null, playerListo = false;
+
+    function marcar(estado) {
+      sonando = estado;
+      botonMusica.classList.toggle('sonando', estado);
+      botonMusica.setAttribute('aria-label', estado ? 'Pausar música' : 'Reproducir música');
+    }
+    function reproducir() {
+      if (audio) return audio.play().then(() => marcar(true)).catch(() => {});
+      if (playerListo) { player.playVideo(); marcar(true); }
+      else marcar(true); // YouTube aún cargando: sonará en onReady
+    }
+    function pausar() {
+      if (audio) audio.pause();
+      else if (playerListo) player.pauseVideo();
+      marcar(false);
+    }
 
     if (CONFIG.musicaArchivo) {
       audio = new Audio(CONFIG.musicaArchivo);
       audio.loop = true;
+      audio.preload = 'auto';
       audio.currentTime = CONFIG.musicaInicio;
+      audio.addEventListener('pause', () => marcar(false));
+      audio.addEventListener('play', () => marcar(true));
+      reproducir(); // intento de autoplay (en celulares casi siempre se bloquea)
     } else if (CONFIG.musicaYoutube) {
       window.onYouTubeIframeAPIReady = () => {
         player = new YT.Player('reproductor', {
@@ -612,13 +634,29 @@
       document.head.appendChild(api);
     }
 
+    // Primer toque en cualquier parte de la invitación → empieza la música
+    const eventosToque = ['pointerdown', 'touchend', 'click', 'keydown'];
+    const quitarToque = () => eventosToque.forEach(t => document.removeEventListener(t, primerToque, true));
+    function primerToque(e) {
+      if (botonMusica.contains(e.target)) { quitarToque(); return; } // el botón ya se encarga
+      if (audio) audio.play().then(() => { marcar(true); quitarToque(); }).catch(() => {}); // si falla, lo reintenta en el siguiente toque
+      else { quitarToque(); if (!sonando) reproducir(); }
+    }
+    eventosToque.forEach(t => document.addEventListener(t, primerToque, true));
+
     botonMusica.addEventListener('click', () => {
-      sonando = !sonando;
-      botonMusica.classList.toggle('sonando', sonando);
-      botonMusica.setAttribute('aria-label', sonando ? 'Pausar música' : 'Reproducir música');
-      if (audio) sonando ? audio.play() : audio.pause();
-      else if (playerListo) sonando ? player.playVideo() : player.pauseVideo();
+      quitarToque();
+      (audio ? !audio.paused : sonando) ? pausar() : reproducir();
     });
+
+    // Pausa si cambian de app o de pestaña, y retoma al volver
+    let pausadaPorSalir = false;
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && sonando) { pausadaPorSalir = true; pausar(); }
+      else if (!document.hidden && pausadaPorSalir) { pausadaPorSalir = false; reproducir(); }
+    });
+    // Al salir de la página (cerrarla o abrir otro link) también se detiene
+    window.addEventListener('pagehide', () => { if (sonando) pausar(); });
   </script>
 </body>
 
