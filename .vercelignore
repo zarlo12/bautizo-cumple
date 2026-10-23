@@ -1,0 +1,4 @@
+# Archivos de Firebase: no son parte de la página
+firestore.rules
+firebase.json
+.firebaserc

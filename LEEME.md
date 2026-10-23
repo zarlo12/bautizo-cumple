@@ -4,9 +4,9 @@ Todo está en `index.html`. Ábrelo con cualquier editor (VS Code, por ejemplo) 
 
 ## Textos
 Busca el texto dentro de `index.html` y cámbialo. Escribe en minúsculas normales: las mayúsculas las pone el estilo.
-- **Nombre del bebé:** `Alana` (h1) y `Gabriela`, en la sección PORTADA. Se ven en dorado.
-- **Papás / padrinos:** `Mariana Olvera<br>&amp;<br>Carlos Mendoza`. El `&amp;` es el símbolo "&".
-- **Fecha:** `20`, `Sábado`, `de junio`, `05:00`, `Pm.`
+- **Nombre del bebé:** `Amyra` (h1) e `Irlanda`, en la sección PORTADA. Se ven en dorado.
+- **Papás / padrinos:** secciones MIS PAPÁS y MIS PADRINOS. El `&amp;` es el símbolo "&".
+- **Fecha:** `15`, `Domingo`, `de nov.`, `09:30`, `Am.`
 - **Lugares y horarios:** sección ITINERARIO.
 - **Título de la pestaña y vista previa de WhatsApp:** `<title>` y las etiquetas `og:` al inicio.
 
@@ -37,7 +37,7 @@ Para mover o cambiar el tamaño de cualquier imagen, edita `left`, `top`, `width
 
 ## Cuenta regresiva, música y links
 Al final de `index.html`, en `CONFIG`:
-- `fechaEvento: '2026-06-20T17:00'`: pon aquí la fecha real (año-mes-díaThora:min). Si la fecha ya pasó, el contador se queda en 0.
+- `fechaEvento: '2026-11-15T09:30'`: pon aquí la fecha real (año-mes-díaThora:min). Si la fecha ya pasó, el contador se queda en 0.
 - `musicaYoutube`: el ID del video de YouTube, o sea lo que va después de `v=` en el link.
 - `musicaArchivo`: si prefieres tu propio MP3, ponlo en una carpeta (ej. `musica/cancion.mp3`) y escribe aquí esa ruta.
 
@@ -45,9 +45,31 @@ Al final de `index.html`, en `CONFIG`:
 
 Links de los botones: busca `href=` en los botones "Ver ubicación" (Google Maps) y "Confirmar aquí" (WhatsApp).
 
+## Invitados con pase personalizado
+En **/admin** (`admin.html`) se crean invitaciones con el nombre del invitado y sus lugares (personas en total, contando al invitado). Cada invitación tiene un link `…/?i=CÓDIGO` que se copia o se manda directo por WhatsApp.
+
+Cuando el invitado abre su link:
+- Arriba de la portada aparece "Con mucho cariño para" + su nombre.
+- Antes de "Te Esperamos" aparece la tarjeta **Tu Pase**: los lugares reservados, cuántas personas asistirán (de 1 hasta el máximo) y los botones **Confirmar asistencia** / **No podré asistir**.
+- Al responder, la respuesta se guarda (en el admin se ve en vivo quién confirmó y cuántos van) y se abre WhatsApp con el mensaje listo para enviar.
+- Puede cambiar su respuesta después desde el mismo link.
+
+Sin código (o con un código que no existe) la invitación se ve como siempre, con el botón "Confirmar aquí".
+
+Dónde se configura:
+- **Número que recibe las confirmaciones:** `whatsappConfirmar` en `CONFIG` (52 + número a 10 dígitos).
+- **Texto de los mensajes de WhatsApp:** función `mensajeWhatsApp()` al final de `index.html`.
+- **Mensaje con el que se manda la invitación:** `mensajeInvitacion` en `admin.html`.
+- **Datos de Firebase:** `firebase-config.js`.
+
+### Firebase (una sola vez)
+Publicar las reglas de `firestore.rules`: `firebase deploy --only firestore:rules` (o pegarlas en Firebase Console → Firestore Database → Reglas → Publicar).
+
+**Ojo:** el admin no pide contraseña. Cualquiera que tenga el link `/admin` puede ver, editar y borrar la lista, así que no lo compartas. Las reglas no protegen quién edita, pero sí evitan datos sin sentido (por ejemplo, más asistentes que lugares).
+
 ## Colores y tipografías
 Al inicio del `<style>`, en `:root`: `--rosa` (color del texto), `--fondo` y las fuentes.
 Tres de las fuentes originales de Canva son comerciales (Slight, MADE TheArtist Script y BLOSTA), así que se cambiaron por equivalentes gratuitos de Google Fonts (WindSong, Sacramento y Josefin Sans).
 
 ## Publicarla
-Sube la carpeta completa (`index.html` + `img/`) a un hosting estático gratuito. La opción más fácil es Netlify Drop (app.netlify.com/drop): arrastras la carpeta y te da un link para compartir. También sirven GitHub Pages o Vercel.
+Sube la carpeta completa (`index.html`, `admin.html`, `firebase-config.js`, `vercel.json` + `img/`) a un hosting estático gratuito. Está publicada en Vercel: `vercel.json` hace que el admin abra en `/admin`. La opción más fácil es Netlify Drop (app.netlify.com/drop): arrastras la carpeta y te da un link para compartir. También sirven GitHub Pages o Vercel.

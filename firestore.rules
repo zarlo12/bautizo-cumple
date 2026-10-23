@@ -1,0 +1,28 @@
+rules_version = '2';
+
+// Reglas de la base de datos de invitados.
+// Publicarlas: firebase deploy --only firestore:rules
+// (o pegarlas en Firebase Console → Firestore Database → Reglas → Publicar)
+//
+// El admin no tiene contraseña, así que la lista está abierta: cualquiera puede leerla y editarla.
+// Lo que sí se cuida es que los datos siempre tengan sentido.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /invitados/{codigo} {
+      allow read, delete: if true;
+      allow create, update: if invitacionValida(request.resource.data);
+    }
+
+    // Nombre de 1 a 80 letras, de 1 a 20 lugares, y nunca más asistentes que lugares
+    function invitacionValida(d) {
+      return d.keys().hasOnly(['nombre', 'pases', 'creado', 'respuesta', 'asistentes', 'respondido'])
+        && d.nombre is string && d.nombre.size() >= 1 && d.nombre.size() <= 80
+        && d.pases is int && d.pases >= 1 && d.pases <= 20
+        && d.asistentes is int
+        && ((d.respuesta == null && d.asistentes == 0)
+          || (d.respuesta == 'si' && d.asistentes >= 1 && d.asistentes <= d.pases)
+          || (d.respuesta == 'no' && d.asistentes == 0));
+    }
+  }
+}

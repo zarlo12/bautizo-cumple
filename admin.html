@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<!--
+  ADMIN DE INVITADOS · se abre en …/admin
+  Crea invitaciones con nombre y lugares; cada una tiene un link …/?i=CÓDIGO para mandar al invitado.
+  Aquí también se ve quién ya confirmó. No pide contraseña: cualquiera con este link puede editar la
+  lista, así que no lo compartas.
+-->
+<html lang="es-MX">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Invitados · Amyra Irlanda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Forum&family=WindSong&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --rosa: #C26794;
+      --rosa-oscuro: #A24F79;
+      --fondo: #FFF3F7;
+      --tinta: #4A2E3C;
+      --suave: #8A6B7B;
+      --linea: #F1D7E3;
+      --blanco: #fff;
+      --error: #B3261E;
+      --f-script: 'WindSong', cursive;
+      --f-texto: 'Forum', serif;
+      --f-numeros: 'Cormorant Garamond', serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    body {
+      margin: 0;
+      background: var(--fondo);
+      color: var(--tinta);
+      font: 16px/1.45 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button,
+    input {
+      font: inherit;
+      color: inherit;
+    }
+
+    main,
+    .encabezado {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    main {
+      padding-bottom: 48px;
+    }
+
+    /* ---------- Encabezado ---------- */
+    .encabezado {
+      padding-top: 26px;
+      padding-bottom: 8px;
+      text-align: center;
+      color: var(--rosa);
+    }
+
+    .sobretitulo {
+      margin: 0;
+      font: 400 13px/1 var(--f-texto);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font: 400 56px/1.25 var(--f-script);
+    }
+
+    /* ---------- Tarjetas y campos ---------- */
+    .tarjeta {
+      margin-bottom: 16px;
+      padding: 20px;
+      background: var(--blanco);
+      border-radius: 18px;
+      box-shadow: 0 1px 2px rgba(162, 79, 121, .08), 0 6px 20px rgba(162, 79, 121, .07);
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      color: var(--rosa);
+      font: 400 19px/1.2 var(--f-texto);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    label,
+    .etiqueta {
+      display: block;
+      margin-bottom: 14px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .etiqueta small {
+      color: var(--suave);
+      font-weight: 400;
+    }
+
+    input[type=text],
+    input[type=search],
+    input[type=number],
+    input:not([type]) {
+      display: block;
+      width: 100%;
+      margin-top: 6px;
+      padding: 11px 14px;
+      border: 1px solid var(--linea);
+      border-radius: 12px;
+      background: var(--blanco);
+      font-size: 16px;
+      font-weight: 400;
+    }
+
+    input:focus-visible,
+    button:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--rosa);
+      outline-offset: 2px;
+    }
+
+    .contador {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .contador button {
+      touch-action: manipulation;
+      width: 46px;
+      height: 46px;
+      border: 1px solid var(--linea);
+      border-radius: 50%;
+      background: var(--blanco);
+      color: var(--rosa);
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .contador input {
+      width: 72px !important;
+      margin: 0 !important;
+      text-align: center;
+      font: 700 24px/1 var(--f-numeros) !important;
+      font-variant-numeric: lining-nums;
+      -moz-appearance: textfield;
+    }
+
+    .contador input::-webkit-inner-spin-button,
+    .contador input::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+    }
+
+    .boton-principal {
+      display: block;
+      width: 100%;
+      height: 50px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--rosa);
+      color: var(--blanco);
+      font: 400 16px/1 var(--f-texto);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .boton-principal:hover {
+      background: var(--rosa-oscuro);
+    }
+
+    .boton-principal:disabled {
+      opacity: .6;
+      cursor: default;
+    }
+
+    .boton-chico {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border: 1px solid var(--linea);
+      border-radius: 999px;
+      background: var(--blanco);
+      color: var(--rosa-oscuro);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .boton-chico:hover {
+      border-color: var(--rosa);
+    }
+
+    .boton-chico.whatsapp {
+      border-color: #25D366;
+      background: #25D366;
+      color: #fff;
+    }
+
+    .peligro {
+      color: var(--error) !important;
+    }
+
+    .link {
+      padding: 6px 2px;
+      border: 0;
+      background: none;
+      color: var(--rosa-oscuro);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      cursor: pointer;
+    }
+
+    .acciones {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .error {
+      margin: -4px 0 14px;
+      color: var(--error);
+      font-size: 14px;
+    }
+
+    .cargando {
+      padding: 40px 0;
+      color: var(--suave);
+      text-align: center;
+    }
+
+    /* ---------- Resumen ---------- */
+    .resumen {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .resumen div {
+      padding: 14px 14px 12px;
+      background: var(--blanco);
+      border-radius: 16px;
+      box-shadow: 0 1px 2px rgba(162, 79, 121, .08);
+    }
+
+    .resumen strong {
+      display: block;
+      color: var(--rosa);
+      font: 700 38px/1 var(--f-numeros);
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+
+    .resumen span {
+      display: block;
+      margin-top: 4px;
+      font: 400 13px/1.2 var(--f-texto);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .resumen small {
+      color: var(--suave);
+      font-size: 12.5px;
+    }
+
+    @media (min-width: 560px) {
+      .resumen {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    /* ---------- Invitación recién creada ---------- */
+    .creado {
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px dashed var(--rosa);
+      border-radius: 14px;
+      background: var(--fondo);
+    }
+
+    .creado p {
+      margin: 0 0 4px;
+      font-size: 15px;
+    }
+
+    .creado input {
+      margin-bottom: 12px;
+      color: var(--rosa-oscuro);
+      font-size: 15px !important;
+    }
+
+    /* ---------- Lista ---------- */
+    .lista-encabezado {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 12px 0 6px;
+    }
+
+    .filtros button {
+      flex: none;
+      min-height: 36px;
+      padding: 0 14px;
+      border: 1px solid var(--linea);
+      border-radius: 999px;
+      background: var(--blanco);
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .filtros button.activo {
+      border-color: var(--rosa);
+      background: var(--rosa);
+      color: var(--blanco);
+    }
+
+    .lista {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .invitado {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--linea);
+    }
+
+    .invitado:last-child {
+      border-bottom: 0;
+    }
+
+    .invitado-fila {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .invitado-nombre {
+      margin: 0;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+
+    .invitado-detalle {
+      margin: 2px 0 10px;
+      color: var(--suave);
+      font-size: 13.5px;
+    }
+
+    .estado {
+      flex: none;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .estado-si {
+      background: #E3F2E8;
+      color: #2C6A45;
+    }
+
+    .estado-no {
+      background: #EFEAEC;
+      color: #6B5B63;
+    }
+
+    .estado-pendiente {
+      background: #FFF2D4;
+      color: #835C00;
+    }
+
+    .vacio {
+      margin: 18px 0 4px;
+      color: var(--suave);
+      text-align: center;
+    }
+
+    /* ---------- Editar ---------- */
+    dialog {
+      width: min(420px, calc(100% - 32px));
+      padding: 22px;
+      border: 0;
+      border-radius: 18px;
+      color: var(--tinta);
+    }
+
+    dialog::backdrop {
+      background: rgba(74, 46, 60, .35);
+    }
+
+    .check {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-weight: 400;
+    }
+
+    .check input {
+      width: 18px;
+      height: 18px;
+      margin: 2px 0 0;
+      accent-color: var(--rosa);
+    }
+
+    dialog .acciones {
+      align-items: center;
+      justify-content: flex-end;
+      margin-top: 6px;
+    }
+
+    #editarEliminar {
+      order: 1;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    dialog .boton-principal {
+      width: auto;
+      height: 42px;
+      padding: 0 22px;
+      font-size: 15px;
+    }
+
+    /* ---------- Aviso flotante ---------- */
+    .aviso {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      max-width: calc(100% - 32px);
+      padding: 11px 18px;
+      border-radius: 999px;
+      background: var(--tinta);
+      color: var(--blanco);
+      font-size: 14px;
+      opacity: 0;
+      transform: translate(-50%, 10px);
+      transition: opacity .2s, transform .2s;
+      pointer-events: none;
+    }
+
+    .aviso.visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  </style>
+</head>
+
+<body>
+  <header class="encabezado">
+    <p class="sobretitulo">Amyra Irlanda · Bautizo y 1er año</p>
+    <h1>Invitados</h1>
+  </header>
+
+  <main>
+    <p class="cargando" id="cargando">Cargando…</p>
+
+    <div id="panel" hidden>
+      <!-- ==================== RESUMEN ==================== -->
+      <section class="resumen" aria-label="Resumen">
+        <div><strong id="rAsisten">0</strong><span>Asistirán</span><small id="rAsistenSub"></small></div>
+        <div><strong id="rPendientes">0</strong><span>Sin responder</span><small id="rPendientesSub"></small></div>
+        <div><strong id="rNo">0</strong><span>No asistirán</span><small id="rNoSub"></small></div>
+        <div><strong id="rLugares">0</strong><span>Lugares</span><small id="rLugaresSub"></small></div>
+      </section>
+
+      <!-- ==================== NUEVA INVITACIÓN ==================== -->
+      <form class="tarjeta" id="nuevo">
+        <h2>Nueva invitación</h2>
+        <label>Nombre del invitado
+          <input id="nuevoNombre" maxlength="80" placeholder="Ej. Familia Pérez López" autocomplete="off" required>
+        </label>
+        <div class="etiqueta">Lugares <small>(personas en total, contando al invitado)</small>
+          <div class="contador">
+            <button type="button" data-paso="-1" aria-label="Quitar un lugar">−</button>
+            <input id="nuevoPases" type="number" min="1" max="20" value="2" inputmode="numeric" aria-label="Lugares">
+            <button type="button" data-paso="1" aria-label="Agregar un lugar">+</button>
+          </div>
+        </div>
+        <p class="error" id="nuevoError" hidden></p>
+        <button class="boton-principal" type="submit">Crear invitación</button>
+
+        <div class="creado" id="creado" hidden>
+          <p><strong id="creadoNombre"></strong> · <span id="creadoPases"></span></p>
+          <input id="creadoLink" readonly aria-label="Link de la invitación">
+          <div class="acciones">
+            <button class="boton-chico" id="creadoCopiar" type="button">Copiar link</button>
+            <a class="boton-chico whatsapp" id="creadoWhatsApp" target="_blank" rel="noopener">Enviar por WhatsApp</a>
+          </div>
+        </div>
+      </form>
+
+      <!-- ==================== LISTA ==================== -->
+      <section class="tarjeta">
+        <div class="lista-encabezado">
+          <h2>Lista <span id="total"></span></h2>
+          <button class="link" id="exportar" type="button">Descargar (Excel)</button>
+        </div>
+        <input type="search" id="buscar" placeholder="Buscar por nombre…" aria-label="Buscar por nombre">
+        <div class="filtros" id="filtros">
+          <button type="button" data-filtro="todos" class="activo">Todos</button>
+          <button type="button" data-filtro="si">Asistirán</button>
+          <button type="button" data-filtro="pendiente">Sin responder</button>
+          <button type="button" data-filtro="no">No asistirán</button>
+        </div>
+        <ul class="lista" id="lista"></ul>
+        <p class="vacio" id="vacio" hidden></p>
+      </section>
+    </div>
+  </main>
+
+  <!-- ==================== EDITAR ==================== -->
+  <dialog id="editar">
+    <form method="dialog">
+      <h2>Editar invitación</h2>
+      <label>Nombre del invitado
+        <input id="editarNombre" maxlength="80" required>
+      </label>
+      <label>Lugares
+        <input id="editarPases" type="number" min="1" max="20" inputmode="numeric" required>
+      </label>
+      <label class="check" id="editarReiniciarFila">
+        <input type="checkbox" id="editarReiniciar">
+        <span>Borrar su respuesta (vuelve a "sin responder")</span>
+      </label>
+      <div class="acciones">
+        <button class="link peligro" id="editarEliminar" type="button">Eliminar invitación</button>
+        <button class="boton-chico" value="cancelar" formnovalidate>Cancelar</button>
+        <button class="boton-principal" value="guardar">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="aviso" id="aviso" role="status" aria-live="polite"></div>
+
+  <script type="module">
+    import { firebaseConfig, SDK } from './firebase-config.js';
+    const [{ initializeApp }, F] = await Promise.all([
+      import(`${SDK}/firebase-app.js`),
+      import(`${SDK}/firebase-firestore.js`)
+    ]);
+
+    const app = initializeApp(firebaseConfig);
+    const db = F.getFirestore(app);
+    const coleccion = F.collection(db, 'invitados');
+
+    const $ = id => document.getElementById(id);
+    const MAX_PASES = 20;
+    let invitados = [];
+    let filtro = 'todos';
+
+    /* ---------- Textos ---------- */
+    const plural = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
+    const linkInvitacion = id => `${location.origin}/?i=${id}`;
+    const estado = i => i.respuesta || 'pendiente';
+    const textoEstado = i => ({
+      si: `Asistirán ${i.asistentes} de ${i.pases}`,
+      no: 'No asistirán',
+      pendiente: 'Sin responder'
+    })[estado(i)];
+    const fecha = ts => ts ? ts.toDate().toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }) : '';
+    const normalizar = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+    // Mensaje con el que se manda el link al invitado
+    const mensajeInvitacion = i => [
+      `¡Hola, *${i.nombre}*!`,
+      'Con mucho cariño te compartimos la invitación al bautizo y primer año de Amyra Irlanda.',
+      `Reservamos *${plural(i.pases, 'lugar', 'lugares')}* para ti. Ábrela y confirma tu asistencia aquí:`,
+      linkInvitacion(i.id)
+    ].join('\n');
+    const whatsAppInvitacion = i => `https://wa.me/?text=${encodeURIComponent(mensajeInvitacion(i))}`;
+
+    function mensajeError(err) {
+      const c = err?.code || '';
+      if (c === 'unavailable') return 'Sin conexión. Revisa tu internet.';
+      if (c === 'permission-denied') return 'La base de datos no dio permiso (revisa que las reglas de firestore.rules estén publicadas).';
+      return `Ocurrió un error: ${err?.message || c}`;
+    }
+
+    function mostrarError(id, texto) {
+      $(id).textContent = texto;
+      $(id).hidden = !texto;
+    }
+
+    let temporizadorAviso;
+    function aviso(texto) {
+      $('aviso').textContent = texto;
+      $('aviso').classList.add('visible');
+      clearTimeout(temporizadorAviso);
+      temporizadorAviso = setTimeout(() => $('aviso').classList.remove('visible'), 2600);
+    }
+
+    async function copiar(texto) {
+      try {
+        await navigator.clipboard.writeText(texto);
+      } catch {
+        // Navegadores sin portapapeles moderno
+        const campo = Object.assign(document.createElement('textarea'), { value: texto });
+        document.body.append(campo);
+        campo.select();
+        document.execCommand('copy');
+        campo.remove();
+      }
+      aviso('Link copiado');
+    }
+
+    const leerPases = campo => Math.min(MAX_PASES, Math.max(1, Math.round(Number(campo.value)) || 1));
+
+    /* ---------- Lista en tiempo real ---------- */
+    F.onSnapshot(F.query(coleccion, F.orderBy('creado', 'desc')), snap => {
+      invitados = snap.docs.map(d => ({ id: d.id, ...d.data({ serverTimestamps: 'estimate' }) }));
+      $('cargando').hidden = true;
+      $('panel').hidden = false;
+      pintar();
+    }, err => {
+      console.error(err);
+      $('cargando').textContent = mensajeError(err);
+      aviso(mensajeError(err));
+    });
+
+    function pintar() {
+      const suma = (lista, campo) => lista.reduce((total, i) => total + i[campo], 0);
+      const si = invitados.filter(i => i.respuesta === 'si');
+      const no = invitados.filter(i => i.respuesta === 'no');
+      const pendientes = invitados.filter(i => !i.respuesta);
+      $('rAsisten').textContent = suma(si, 'asistentes');
+      $('rAsistenSub').textContent = `personas · ${plural(si.length, 'invitación', 'invitaciones')}`;
+      $('rPendientes').textContent = pendientes.length;
+      $('rPendientesSub').textContent = `invitaciones · ${plural(suma(pendientes, 'pases'), 'lugar', 'lugares')}`;
+      $('rNo').textContent = no.length;
+      $('rNoSub').textContent = `invitaciones · ${plural(suma(no, 'pases'), 'lugar', 'lugares')}`;
+      $('rLugares').textContent = suma(invitados, 'pases');
+      $('rLugaresSub').textContent = `en ${plural(invitados.length, 'invitación', 'invitaciones')}`;
+
+      const texto = normalizar($('buscar').value.trim());
+      const visibles = invitados.filter(i =>
+        (filtro === 'todos' || estado(i) === filtro) && normalizar(i.nombre).includes(texto));
+      $('total').textContent = `(${invitados.length})`;
+      $('lista').replaceChildren(...visibles.map(fila));
+      $('vacio').hidden = visibles.length > 0;
+      $('vacio').textContent = invitados.length
+        ? 'No hay invitados con ese filtro.'
+        : 'Aún no hay invitados. Crea el primero arriba.';
+    }
+
+    function fila(i) {
+      const li = document.createElement('li');
+      li.className = 'invitado';
+      li.dataset.id = i.id;
+      li.innerHTML = `
+        <div class="invitado-fila">
+          <p class="invitado-nombre"></p>
+          <span class="estado estado-${estado(i)}"></span>
+        </div>
+        <p class="invitado-detalle"></p>
+        <div class="acciones">
+          <button class="boton-chico" type="button" data-accion="copiar">Copiar link</button>
+          <a class="boton-chico" target="_blank" rel="noopener">WhatsApp</a>
+          <button class="boton-chico" type="button" data-accion="editar">Editar</button>
+        </div>`;
+      li.querySelector('.invitado-nombre').textContent = i.nombre;
+      li.querySelector('.estado').textContent = textoEstado(i);
+      li.querySelector('.invitado-detalle').textContent = [
+        plural(i.pases, 'lugar', 'lugares'),
+        `código ${i.id}`,
+        i.respondido && `respondió el ${fecha(i.respondido)}`
+      ].filter(Boolean).join(' · ');
+      li.querySelector('a').href = whatsAppInvitacion(i);
+      return li;
+    }
+
+    $('buscar').addEventListener('input', pintar);
+    $('filtros').addEventListener('click', e => {
+      const boton = e.target.closest('[data-filtro]');
+      if (!boton) return;
+      filtro = boton.dataset.filtro;
+      $('filtros').querySelectorAll('button').forEach(b => b.classList.toggle('activo', b === boton));
+      pintar();
+    });
+
+    $('lista').addEventListener('click', e => {
+      const boton = e.target.closest('[data-accion]');
+      if (!boton) return;
+      const i = invitados.find(x => x.id === boton.closest('.invitado').dataset.id);
+      if (!i) return;
+      if (boton.dataset.accion === 'copiar') copiar(linkInvitacion(i.id));
+      if (boton.dataset.accion === 'editar') abrirEditar(i);
+    });
+
+    /* ---------- Nueva invitación ---------- */
+    document.querySelectorAll('[data-paso]').forEach(boton => boton.addEventListener('click', () => {
+      const campo = $('nuevoPases');
+      campo.value = Math.min(MAX_PASES, Math.max(1, leerPases(campo) + Number(boton.dataset.paso)));
+    }));
+
+    // Código corto y sin letras que se confundan (0/O, 1/I/L)
+    async function codigoNuevo() {
+      const letras = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+      for (let intento = 0; intento < 5; intento++) {
+        const id = Array.from(crypto.getRandomValues(new Uint32Array(8)), n => letras[n % letras.length]).join('');
+        if (!(await F.getDoc(F.doc(coleccion, id))).exists()) return id;
+      }
+      throw new Error('No se pudo generar el código, inténtalo de nuevo.');
+    }
+
+    $('nuevo').addEventListener('submit', async e => {
+      e.preventDefault();
+      const nombre = $('nuevoNombre').value.trim().replace(/\s+/g, ' ');
+      const pases = leerPases($('nuevoPases'));
+      if (!nombre) return;
+      const boton = e.submitter;
+      boton.disabled = true;
+      boton.textContent = 'Creando…';
+      mostrarError('nuevoError', '');
+      try {
+        const id = await codigoNuevo();
+        await F.setDoc(F.doc(coleccion, id), {
+          nombre, pases, creado: F.serverTimestamp(), respuesta: null, asistentes: 0, respondido: null
+        });
+        const nueva = { id, nombre, pases };
+        $('creadoNombre').textContent = nombre;
+        $('creadoPases').textContent = plural(pases, 'lugar', 'lugares');
+        $('creadoLink').value = linkInvitacion(id);
+        $('creadoWhatsApp').href = whatsAppInvitacion(nueva);
+        $('creado').hidden = false;
+        $('nuevoNombre').value = '';
+        $('nuevoPases').value = 2;
+      } catch (err) {
+        mostrarError('nuevoError', mensajeError(err));
+      } finally {
+        boton.disabled = false;
+        boton.textContent = 'Crear invitación';
+      }
+    });
+
+    $('creadoCopiar').addEventListener('click', () => copiar($('creadoLink').value));
+    $('creadoLink').addEventListener('focus', e => e.target.select());
+
+    /* ---------- Editar ---------- */
+    let editando = null;
+    function abrirEditar(i) {
+      editando = i;
+      $('editarNombre').value = i.nombre;
+      $('editarPases').value = i.pases;
+      $('editarReiniciar').checked = false;
+      $('editarReiniciarFila').hidden = !i.respuesta;
+      $('editar').returnValue = '';
+      $('editar').showModal();
+    }
+
+    $('editar').addEventListener('close', async () => {
+      if ($('editar').returnValue !== 'guardar' || !editando) return;
+      const pases = leerPases($('editarPases'));
+      const cambios = { nombre: $('editarNombre').value.trim().replace(/\s+/g, ' ') || editando.nombre, pases };
+      if ($('editarReiniciar').checked) Object.assign(cambios, { respuesta: null, asistentes: 0, respondido: null });
+      else if (editando.respuesta === 'si' && editando.asistentes > pases) cambios.asistentes = pases;
+      try {
+        await F.updateDoc(F.doc(coleccion, editando.id), cambios);
+        aviso('Cambios guardados');
+      } catch (err) {
+        aviso(mensajeError(err));
+      }
+    });
+
+    $('editarEliminar').addEventListener('click', async () => {
+      const i = editando;
+      if (!confirm(`¿Eliminar la invitación de ${i.nombre}? Su link dejará de funcionar.`)) return;
+      $('editar').close();
+      try {
+        await F.deleteDoc(F.doc(coleccion, i.id));
+        aviso('Invitación eliminada');
+      } catch (err) {
+        aviso(mensajeError(err));
+      }
+    });
+
+    /* ---------- Descargar lista (CSV que abre Excel) ---------- */
+    $('exportar').addEventListener('click', () => {
+      const filas = [
+        ['Nombre', 'Lugares', 'Respuesta', 'Asistentes', 'Respondió', 'Código', 'Link'],
+        ...invitados.map(i => [
+          i.nombre, i.pases, textoEstado(i), i.respuesta === 'si' ? i.asistentes : 0,
+          fecha(i.respondido), i.id, linkInvitacion(i.id)
+        ])
+      ];
+      const csv = filas.map(f => f.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+      const archivo = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+      const a = Object.assign(document.createElement('a'), {
+        href: URL.createObjectURL(archivo),
+        download: 'invitados-amyra-irlanda.csv'
+      });
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    });
+  </script>
+</body>
+
+</html>
